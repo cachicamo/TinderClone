@@ -4,24 +4,25 @@ import { View, Image, Text, StyleSheet, SafeAreaView, FlatList } from 'react-nat
 
 import users from '../../assets/data/users';
 import messages from '../../assets/data/messages';
-import Fontisto from 'react-native-vector-icons/Fontisto';
 
 import MessageListItem from '../components/MessageListItem';
 
 const MatchesScreen = () => {
-  const renderItem = ({ item }) => (
-    <MessageListItem message={item} />
-  );
+  const renderItem = ({item}) => <MessageListItem message={item} />;
 
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.container}>
         <Text style={styles.title}>New Matches</Text>
         <View style={styles.users}>
+          <View style={styles.user}>
+            <Image source={{uri: users[0].image}} style={styles.image} />
+            <Text style={styles.userText}>{'54 '}Likes</Text>
+          </View>
           {users.map((user, i) => (
-            <View Key={i} style={styles.user}>
-              <Image  source={{uri: user.image}} style={styles.image} />
-              <Text style={styles.userText}>{user.name.split(' ')[0]}</Text>
+            <View Key={i} style={styles.userOthers}>
+              <Image source={{uri: user.image}} style={styles.image} />
+              <Text style={styles.userOthersText}>{user.name.split(' ')[0]}</Text>
             </View>
           ))}
         </View>
@@ -32,11 +33,10 @@ const MatchesScreen = () => {
           style={styles.flatList}
           data={messages}
           renderItem={renderItem}
-          keyExtractor={(item,index) => index}
+          keyExtractor={(item, index) => index}
           showsVerticalScrollIndicator={false}
         />
       </View>
- 
     </SafeAreaView>
   );
 };
@@ -67,6 +67,13 @@ const styles = StyleSheet.create({
     borderColor: '#f63a6b',
 
   },
+  userOthers: {
+    width: 65,
+    height: 65,
+    margin: 5,
+    borderRadius: 50,
+    alignItems: 'center',
+  },
   users: {
     flexDirection: 'row',
     // flexWrap: 'wrap',
@@ -77,6 +84,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   userText: {
+    marginVertical: 15,
+  },
+  userOthersText: {
     marginVertical: 10,
   },
   messageContainer: {
