@@ -1,12 +1,12 @@
 import React from 'react'
 import { View, Text, Image, StyleSheet } from 'react-native'
 
-const MessageListItem = (props) => {
-  const { message } = props;
+const MessageListItem = props => {
+  const {message} = props;
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: message.image }} style={styles.image}/>
+        <Image source={{uri: message.image}} style={styles.image} />
       </View>
       <View style={styles.middleContainer}>
         <Text style={styles.name}>{message.name}</Text>
@@ -17,10 +17,9 @@ const MessageListItem = (props) => {
           <Text style={styles.messages}>{message.count}</Text>
         </View>
       )}
-      
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

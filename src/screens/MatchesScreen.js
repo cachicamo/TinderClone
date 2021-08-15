@@ -20,10 +20,10 @@ const MatchesScreen = () => {
             <Text style={styles.userText}>{'54 '}Likes</Text>
           </View>
           {users.map((user, i) => (
-            <View Key={i} style={styles.userOthers}>
+            <View key={i} style={styles.userOthers}>
               <Image source={{uri: user.image}} style={styles.image} />
               <Text style={styles.userOthersText}>{user.name.split(' ')[0]}</Text>
-            </View>
+            </View> 
           ))}
         </View>
       </View>

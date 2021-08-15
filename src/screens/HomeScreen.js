@@ -12,11 +12,11 @@ import Entypo from 'react-native-vector-icons/Entypo';
 
 const HomeScreen = () => {
   const onSwipeLeft = user => {
-    console.warn('swipe Left: ', user.name);
+    console.log('swipe Left: ', user.name);
   };
 
   const onSwipeRight = user => {
-    console.warn('swipte Right: ', user.name);
+    console.log('swipte Right: ', user.name);
   };
 
   return (

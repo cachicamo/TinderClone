@@ -16,7 +16,7 @@ import Like from '../../../assets/images/LIKE.png';
 import Nope from '../../../assets/images/nope.png';
 
 const ROTATION = 60;
-const SWIPE_VELOCITY = 10;
+const SWIPE_VELOCITY = 60;
 
 const AnimatedStack = (props) => {
   const { data, renderItem, onSwipeLeft, onSwipeRight } = props;
@@ -47,20 +47,19 @@ const AnimatedStack = (props) => {
       // console.log('Touch x: ', event.translationX);
     },
     onEnd: event => {
-      console.log('VelocityX', event.velocityX);
-      if (Math.abs(event.velocityX) < SWIPE_VELOCITY) {
+      if (Math.abs(event.translationX) < SWIPE_VELOCITY) {
         translateX.value = withSpring(0);
         return;
       }
 
       // throw card left or right and after that change Index
       translateX.value = withSpring(
-        hiddenTranslateX * Math.sign(event.velocityX),
+        hiddenTranslateX * Math.sign(event.translationX),
         {},
         () => runOnJS(setCurrentIndex)(currentIndex + 1),
       );
 
-      const onSwipe = event.velocityX > 0 ? onSwipeRight : onSwipeLeft;
+      const onSwipe = event.translationX > 0 ? onSwipeRight : onSwipeLeft;
 
       onSwipe && runOnJS(onSwipe)(currentProfile)
     },
@@ -147,7 +146,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   animatedCard: {
-    width: '90%',
+    width: '80%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',

@@ -30,7 +30,7 @@ export default [
     id: '5',
     name: 'Vadim Savin',
     image:
-      'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/vadim1.JPG',
+    'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/zuck.jpeg',    bio: 'I will be the semicolons to your code',
     bio: 'Hola',
   },
 ];
