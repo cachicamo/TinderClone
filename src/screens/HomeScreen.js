@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import {View, StyleSheet, SafeAreaView} from 'react-native';
 
 import users from '../../assets/data/users';
 import Card from '../components/TinderCard';
@@ -9,8 +9,9 @@ import AnimatedStack from '../components/AnimatedStack';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
+import NavigationIcons from '../components/NavigationIcons';
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   const onSwipeLeft = user => {
     console.log('swipe Left: ', user.name);
   };
@@ -20,35 +21,41 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={styles.pageContainer}>
-      <AnimatedStack
-        data={users}
-        renderItem={({item}) => <Card user={item} />}
-        onSwipeLeft={onSwipeLeft}
-        onSwipeRight={onSwipeRight}
-      />
-      <View style={styles.icons}>
-        <View style={styles.circle}>
-          <FontAwesome name="undo" size={24} color="#FBD88B" />
-        </View>
-        <View style={styles.circle}>
-          <Entypo name="cross" size={24} color="#F76C6B" />
-        </View>
-        <View style={styles.circle}>
-          <FontAwesome name="star" size={24} color="#3AB4CC" />
-        </View>
-        <View style={styles.circle}>
-          <FontAwesome name="heart" size={24} color="#4FCC94" />
-        </View>
-        <View style={styles.circle}>
-          <Ionicons name="flash" size={24} color="#A65CD2" />
+    <SafeAreaView style={styles.root}>
+      <View style={styles.pageContainer}>
+        <NavigationIcons navigation={navigation} />
+        <AnimatedStack
+          data={users}
+          renderItem={({item}) => <Card user={item} />}
+          onSwipeLeft={onSwipeLeft}
+          onSwipeRight={onSwipeRight}
+        />
+        <View style={styles.icons}>
+          <View style={styles.circle}>
+            <FontAwesome name="undo" size={24} color="#FBD88B" />
+          </View>
+          <View style={styles.circle}>
+            <Entypo name="cross" size={24} color="#F76C6B" />
+          </View>
+          <View style={styles.circle}>
+            <FontAwesome name="star" size={24} color="#3AB4CC" />
+          </View>
+          <View style={styles.circle}>
+            <FontAwesome name="heart" size={24} color="#4FCC94" />
+          </View>
+          <View style={styles.circle}>
+            <Ionicons name="flash" size={24} color="#A65CD2" />
+          </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   pageContainer: {
     flex: 1,
     justifyContent: 'center',

@@ -6,12 +6,14 @@ import users from '../../assets/data/users';
 import messages from '../../assets/data/messages';
 
 import MessageListItem from '../components/MessageListItem';
+import NavigationIcons from '../components/NavigationIcons';
 
-const MatchesScreen = () => {
+const MatchesScreen = ({navigation}) => {
   const renderItem = ({item}) => <MessageListItem message={item} />;
 
   return (
     <SafeAreaView style={styles.root}>
+      <NavigationIcons navigation={navigation} />
       <View style={styles.container}>
         <Text style={styles.title}>New Matches</Text>
         <View style={styles.users}>

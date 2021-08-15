@@ -1,5 +1,6 @@
 package com.tinderclone;
 
+import android.os.Bundle;
 import com.facebook.react.ReactActivity;
 
 public class MainActivity extends ReactActivity {
@@ -11,5 +12,9 @@ public class MainActivity extends ReactActivity {
   @Override
   protected String getMainComponentName() {
     return "TinderClone";
+  }
+  @Override
+  protected void onCreate(BundlesavedInstanceState) {
+    super.onCreate(null);
   }
 }
