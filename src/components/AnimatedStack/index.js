@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, useWindowDimensions } from 'react-native';
 import {PanGestureHandler} from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -61,7 +61,7 @@ const AnimatedStack = (props) => {
 
       const onSwipe = event.translationX > 0 ? onSwipeRight : onSwipeLeft;
 
-      onSwipe && runOnJS(onSwipe)(currentProfile)
+      onSwipe && runOnJS(onSwipe)(currentProfile);
     },
   });
 
@@ -115,8 +115,7 @@ const AnimatedStack = (props) => {
           </Animated.View>
         </View>
       )}
-      {currentProfile &&  (
-
+      {currentProfile ? (
         <PanGestureHandler onGestureEvent={gestureHandler}>
           <Animated.View style={[styles.animatedCard, cardStyle]}>
             <Animated.Image
@@ -133,6 +132,10 @@ const AnimatedStack = (props) => {
            {renderItem({ item: currentProfile })}
           </Animated.View>
         </PanGestureHandler>
+      ) : (
+        <View>
+          <Text>Oooops, No more users!</Text>
+        </View>
       )}
     </View>
   );

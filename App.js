@@ -5,6 +5,16 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from './src/screens/HomeScreen';
 import MatchesScreen from './src/screens/MatchesScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import Amplify, {DataStore, Hub} from 'aws-amplify';
+import {withAuthenticator} from 'aws-amplify-react-native';
+import config from './src/aws-exports';
+
+Amplify.configure({
+  ...config,
+  Analytics: {
+    disabled: true,
+  },
+});
 
 const Stack = createNativeStackNavigator();
 
@@ -23,4 +33,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default withAuthenticator(App);

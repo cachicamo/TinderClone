@@ -1,0 +1,15 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-tinderclone-staging-121533-authRole",
+      "UnauthRoleArn": "arn:aws:iam::297978731377:role/amplify-tinderclone-staging-121533-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::297978731377:role/amplify-tinderclone-staging-121533-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-tinderclone-staging-121533-deployment",
+      "UnauthRoleName": "amplify-tinderclone-staging-121533-unauthRole",
+      "StackName": "amplify-tinderclone-staging-121533",
+      "StackId": "arn:aws:cloudformation:us-east-1:297978731377:stack/amplify-tinderclone-staging-121533/a7edc960-fe8b-11eb-952d-0e007e135db7",
+      "AmplifyAppId": "d3sg1dbvldi6mj"
+    }
+  }
+}
