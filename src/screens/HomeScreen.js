@@ -1,34 +1,76 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+import {Auth, DataStore} from 'aws-amplify';
 import {View, StyleSheet, SafeAreaView} from 'react-native';
-
-import users from '../../assets/data/users';
-import Card from '../components/TinderCard';
-import AnimatedStack from '../components/AnimatedStack';
-
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
+
+// User DataStore Definition
+import {User} from '../models/';
+
+// Local mock data
+// import users from '../../assets/data/users';
+
+import Card from '../components/TinderCard';
+import AnimatedStack from '../components/AnimatedStack';
 import NavigationIcons from '../components/NavigationIcons';
 
 const HomeScreen = ({navigation}) => {
-  const onSwipeLeft = user => {
-    console.log('swipe Left: ', user.name);
+  const [authUser, setAuthUser] = useState(null);
+  const [usersDB, setUsersDB] = useState([]);
+  const [currentCard, setCurrentCard] = useState(null);
+
+  const onSwipeLeft = () => {
+    if (!currentCard) {
+      return;
+    }
+    console.log('swipe Left: ', currentCard.name);
   };
 
-  const onSwipeRight = user => {
-    console.log('swipte Right: ', user.name);
+  const onSwipeRight = () => {
+    if (!currentCard) {
+      return;
+    }
+    console.log('swipte Right: ', currentCard.name);
   };
+
+  useEffect(() => {
+    const getAuthUser = async () => {
+      try {
+        const response = await Auth.currentAuthenticatedUser();
+        setAuthUser(response);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    getAuthUser();
+  }, []);
+
+  useEffect(() => {
+    const getUsers = async () => {
+      try {
+        const dbUsers = await DataStore.query(User);
+        setUsersDB(dbUsers);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    getUsers();
+  }, []);
 
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.pageContainer}>
         <NavigationIcons navigation={navigation} />
         <AnimatedStack
-          data={users}
+          data={usersDB}
           renderItem={({item}) => <Card user={item} />}
           onSwipeLeft={onSwipeLeft}
           onSwipeRight={onSwipeRight}
+          setCurrentCard={setCurrentCard}
         />
         <View style={styles.icons}>
           <View style={styles.circle}>

@@ -19,18 +19,16 @@ const ROTATION = 60;
 const SWIPE_VELOCITY = 60;
 
 const AnimatedStack = (props) => {
-  const { data, renderItem, onSwipeLeft, onSwipeRight } = props;
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(currentIndex + 1);
+
+  const {data, renderItem, onSwipeLeft, onSwipeRight, setCurrentCard} = props;
   const currentProfile = data[currentIndex];
   const nextProfile = data[nextIndex];
-
   const {width: screenWidth} = useWindowDimensions();
-
+  const translateX = useSharedValue(0); // values -width,   0   , +width
   const hiddenTranslateX = 2 * screenWidth;
 
-  const translateX = useSharedValue(0); // values -width,   0   , +width
   const rotate = useDerivedValue(
     () =>
       interpolate(translateX.value, [0, hiddenTranslateX], [0, ROTATION]) +
@@ -61,14 +59,9 @@ const AnimatedStack = (props) => {
 
       const onSwipe = event.translationX > 0 ? onSwipeRight : onSwipeLeft;
 
-      onSwipe && runOnJS(onSwipe)(currentProfile);
+      onSwipe && runOnJS(onSwipe)();
     },
   });
-
-  useEffect(() => {
-    translateX.value = 0;
-    setNextIndex(currentIndex + 1);
-  }, [currentIndex, translateX]);
 
   const cardStyle = useAnimatedStyle(() => ({
     transform: [
@@ -105,6 +98,19 @@ const AnimatedStack = (props) => {
   const sentimentNopeStyle = useAnimatedStyle(() => ({
     opacity: interpolate(translateX.value, [0, -screenWidth / 5], [0, 1]),
   }));
+
+  useEffect(() => {
+    translateX.value = 0;
+    setNextIndex(currentIndex + 1);
+  }, [currentIndex, translateX]);
+
+  useEffect(() => {
+    if (!currentProfile) {
+      return;
+    }
+
+    setCurrentCard(currentProfile);
+  }, [currentProfile, setCurrentCard]);
 
   return (
     <View style={styles.root}>
