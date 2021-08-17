@@ -78,7 +78,7 @@ const ProfileScreen = ({navigation}) => {
         await DataStore.save(newUser);
       }
 
-      Alert.alert("User Saved Successfully!");
+      Alert.alert('User Saved Successfully!');
     } catch (e) {
       console.error(e);
     }
@@ -96,11 +96,10 @@ const ProfileScreen = ({navigation}) => {
       try {
         const authUser = await Auth.currentAuthenticatedUser();
 
-        const dbUsers = await DataStore.query(
-          User,
-          u => u.sub === authUser.attributes.sub,
+        const dbUsers = await DataStore.query(User, u =>
+          u.sub('eq', authUser.attributes.sub),
         );
-        if (dbUsers.length === 0) {
+        if (dbUsers.length < 1) {
           return;
         }
         const dbUser = dbUsers[0];
@@ -117,10 +116,14 @@ const ProfileScreen = ({navigation}) => {
     getCurrentUser();
   }, []);
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.pageContainer}>
-        <NavigationIcons navigation={navigation} activeScreen={'PROFILE'} />
+        <NavigationIcons navigation={navigation} activeScreen={'PROFILE'} me={user}/>
         <View style={styles.container}>
           <TextInput
             style={styles.input}
@@ -131,8 +134,9 @@ const ProfileScreen = ({navigation}) => {
           <TextInput
             style={styles.input}
             placeholder="Bio..."
-            multiline
-            numberOfLines={3}
+            multiline={true}
+            scrollEnabled = {true}
+            maxLength={105}
             value={bio}
             onChangeText={setBio}
           />
@@ -181,13 +185,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4f4f4',
   },
   container: {
-    padding: 15,
+    padding: 10,
     height: '92%',
   },
   signOut: {
     height: 25,
-    marginTop: 5,
-    margin: 10,
+    marginTop: 15,
+    margin: 0,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
@@ -208,7 +212,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
-    margin: 10,
+    margin: 0,
     backgroundColor: 'lightgreen',
   },
   saveText: {

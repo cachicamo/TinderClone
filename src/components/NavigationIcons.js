@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Pressable, StyleSheet} from 'react-native';
+import {View, Text, Pressable, StyleSheet} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
@@ -7,7 +7,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-const NavigationIcons = ({navigation}) => {
+const NavigationIcons = ({navigation, me}) => {
   const color = '#b5b5b5';
   const activeColor = '#f76c6b';
   const route = useRoute();
@@ -36,11 +36,13 @@ const NavigationIcons = ({navigation}) => {
           color={route.name === 'Matches' ? activeColor : color}
         />
       </Pressable>
-      <Pressable onPress={() => navigation.navigate('Profile')}>
-        <FontAwesome 
-          name="user" 
-          size={30} 
-          color={route.name === 'Profile' ? activeColor : color} />
+      <Pressable onPress={() => navigation.navigate('Profile')} style={styles.user}>
+        <FontAwesome
+          name="user"
+          size={30}
+          color={route.name === 'Profile' ? activeColor : color}
+        />
+        <Text>{me.name}</Text>
       </Pressable>
     </View>
   );
@@ -53,6 +55,10 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 10,
   },
+  user: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
 });
 
 

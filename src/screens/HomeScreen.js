@@ -1,13 +1,13 @@
 import 'react-native-gesture-handler';
 import React, {useState, useEffect} from 'react';
 import {Auth, DataStore} from 'aws-amplify';
-import {View, StyleSheet, SafeAreaView} from 'react-native';
+import {View, Text, StyleSheet, SafeAreaView, Pressable} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 
 // User DataStore Definition
-import {User} from '../models/';
+import {User, Match} from '../models/';
 
 // Local mock data
 // import users from '../../assets/data/users';
@@ -17,54 +17,107 @@ import AnimatedStack from '../components/AnimatedStack';
 import NavigationIcons from '../components/NavigationIcons';
 
 const HomeScreen = ({navigation}) => {
-  const [authUser, setAuthUser] = useState(null);
+  const [me, setMe] = useState(null);
   const [usersDB, setUsersDB] = useState([]);
   const [currentCard, setCurrentCard] = useState(null);
 
   const onSwipeLeft = () => {
-    if (!currentCard) {
+    if (!currentCard || !me) {
       return;
     }
     console.log('swipe Left: ', currentCard.name);
   };
 
-  const onSwipeRight = () => {
-    if (!currentCard) {
+  const onSwipeRight = async () => {
+    if (!currentCard || !me) {
       return;
     }
-    console.log('swipte Right: ', currentCard.name);
+
+    try {
+      const myMatches = await DataStore.query(Match, match =>
+        match.User1ID('eq', me.id).User2ID('eq', currentCard.id),
+      );
+
+      if (myMatches.length > 0) {
+        console.warn('You already swipped right to this user');
+        return;
+      }
+
+      const hisMatches = await DataStore.query(Match, match =>
+        match.User1ID('eq', currentCard.id).User2ID('eq', me.id),
+      );
+
+      if (hisMatches.length > 0) {
+        console.warn('Yay, this is a new match');
+        const hisMatch = hisMatches[0];
+        DataStore.save(
+          Match.copyOf(hisMatch, updated => (updated.isMatch = true)),
+        );
+        return;
+      }
+
+      console.warn('Sending User a match request!');
+      DataStore.save(
+        new Match({
+          User1ID: me.id,
+          User2ID: currentCard.id,
+          isMatch: false,
+        }),
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Reload UsersDB
+  const onRefresh = () => {
+    getUsers();
+  };
+
+  const getUsers = async () => {
+    if (!me) {
+      return;
+    }
+    try {
+      const dbUsers = await DataStore.query(User, u => u.id('ne', me.id));
+      setUsersDB(dbUsers);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   useEffect(() => {
-    const getAuthUser = async () => {
+    const getCurrentUser = async () => {
       try {
-        const response = await Auth.currentAuthenticatedUser();
-        setAuthUser(response);
+        const user = await Auth.currentAuthenticatedUser();
+        const dbUsers = await DataStore.query(User, u =>
+          u.sub('eq', user.attributes.sub),
+        );
+        if (dbUsers.length < 1) {
+          return;
+        }
+
+        setMe(dbUsers[0]);
       } catch (e) {
         console.error(e);
       }
     };
 
-    getAuthUser();
+    getCurrentUser();
   }, []);
 
   useEffect(() => {
-    const getUsers = async () => {
-      try {
-        const dbUsers = await DataStore.query(User);
-        setUsersDB(dbUsers);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
     getUsers();
-  }, []);
+  }, [me]);
+
+  if (!me) {
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.pageContainer}>
-        <NavigationIcons navigation={navigation} />
+        <NavigationIcons navigation={navigation} me={me}/>
         <AnimatedStack
           data={usersDB}
           renderItem={({item}) => <Card user={item} />}
@@ -72,7 +125,7 @@ const HomeScreen = ({navigation}) => {
           onSwipeRight={onSwipeRight}
           setCurrentCard={setCurrentCard}
         />
-        <View style={styles.icons}>
+        <Pressable onPress={onRefresh} style={styles.icons}>
           <View style={styles.circle}>
             <FontAwesome name="undo" size={24} color="#FBD88B" />
           </View>
@@ -88,7 +141,7 @@ const HomeScreen = ({navigation}) => {
           <View style={styles.circle}>
             <Ionicons name="flash" size={24} color="#A65CD2" />
           </View>
-        </View>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -118,6 +171,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  meNameContainer: {
+    width: '100%',
+    alignItems: 'flex-end',
+    paddingHorizontal: 20,
+  },
+  meName: {
+    fontSize: 12,
   },
 });
 

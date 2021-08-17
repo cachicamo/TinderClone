@@ -1,6 +1,8 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { View, Image, Text, StyleSheet, SafeAreaView, FlatList } from 'react-native'
-// import {FontAwesome5} from '@expo/vector-icons';
+import {Auth, DataStore} from 'aws-amplify';
+
+import {User, Match} from '../models';
 
 import users from '../../assets/data/users';
 import messages from '../../assets/data/messages';
@@ -9,11 +11,47 @@ import MessageListItem from '../components/MessageListItem';
 import NavigationIcons from '../components/NavigationIcons';
 
 const MatchesScreen = ({navigation}) => {
+  const [me, setMe] = useState(null);
+  const [matches, setMatches] = useState([]);
+
   const renderItem = ({item}) => <MessageListItem message={item} />;
+
+  const getCurrentUser = async () => {
+    try {
+      const user = await Auth.currentAuthenticatedUser();
+      const dbUsers = await DataStore.query(User, u =>
+        u.sub('eq', user.attributes.sub),
+      );
+      if (dbUsers.length < 1) {
+        return;
+      }
+
+      setMe(dbUsers[0]);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    const fetchMatches = async () => {
+      const result = await DataStore.query(Match);
+
+      setMatches(result);
+    };
+
+    fetchMatches();
+    getCurrentUser();
+  }, []);
+
+ 
+  if(!me) {
+    // getCurrentUser();
+    return null;
+  }
 
   return (
     <SafeAreaView style={styles.root}>
-      <NavigationIcons navigation={navigation} />
+      <NavigationIcons navigation={navigation} me={me}/>
       <View style={styles.container}>
         <Text style={styles.title}>New Matches</Text>
         <View style={styles.users}>
