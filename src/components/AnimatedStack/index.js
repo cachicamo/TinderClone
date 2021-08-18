@@ -11,7 +11,9 @@ import Animated, {
   interpolate,
   runOnJS,
 } from 'react-native-reanimated';
+import {useRecoilState} from 'recoil';
 
+import {currentCardState} from '../../atoms/index';
 import Like from '../../../assets/images/LIKE.png';
 import Nope from '../../../assets/images/nope.png';
 
@@ -19,10 +21,12 @@ const ROTATION = 60;
 const SWIPE_VELOCITY = 60;
 
 const AnimatedStack = (props) => {
+  const [surrentCard, setCurrentCard] = useRecoilState(currentCardState);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(currentIndex + 1);
 
-  const {data, renderItem, onSwipeLeft, onSwipeRight, setCurrentCard} = props;
+  const {data, renderItem, onSwipeLeft, onSwipeRight} = props;
   const currentProfile = data[currentIndex];
   const nextProfile = data[nextIndex];
   const {width: screenWidth} = useWindowDimensions();

@@ -5,6 +5,10 @@ import {View, Text, StyleSheet, SafeAreaView, Pressable} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
+import {useRecoilState, useRecoilValue} from 'recoil';
+
+//Recoil
+import {meState, userDBState, currentCardState} from '../atoms/index';
 
 // User DataStore Definition
 import {User, Match} from '../models/';
@@ -17,9 +21,9 @@ import AnimatedStack from '../components/AnimatedStack';
 import NavigationIcons from '../components/NavigationIcons';
 
 const HomeScreen = ({navigation}) => {
-  const [me, setMe] = useState(null);
-  const [usersDB, setUsersDB] = useState([]);
-  const [currentCard, setCurrentCard] = useState(null);
+  const [me, setMe] = useRecoilState(meState);
+  const [usersDB, setUsersDB] = useRecoilState(userDBState);
+  const currentCard = useRecoilValue(currentCardState);
 
   const onSwipeLeft = () => {
     if (!currentCard || !me) {
@@ -46,7 +50,10 @@ const HomeScreen = ({navigation}) => {
       const hisMatches = await DataStore.query(Match, match =>
         match.User1ID('eq', currentCard.id).User2ID('eq', me.id),
       );
-
+      // const hisMatches = await DataStore.query(Match);
+      // console.log(currentCard.id, me.id);
+      // console.log(hisMatches);
+      // return;
       if (hisMatches.length > 0) {
         console.warn('Yay, this is a new match');
         const hisMatch = hisMatches[0];
@@ -117,13 +124,12 @@ const HomeScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.pageContainer}>
-        <NavigationIcons navigation={navigation} me={me}/>
+        <NavigationIcons navigation={navigation} />
         <AnimatedStack
           data={usersDB}
           renderItem={({item}) => <Card user={item} />}
           onSwipeLeft={onSwipeLeft}
           onSwipeRight={onSwipeRight}
-          setCurrentCard={setCurrentCard}
         />
         <Pressable onPress={onRefresh} style={styles.icons}>
           <View style={styles.circle}>

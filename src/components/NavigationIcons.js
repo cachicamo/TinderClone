@@ -1,13 +1,16 @@
 import React from 'react';
 import {View, Text, Pressable, StyleSheet} from 'react-native';
 import {useRoute} from '@react-navigation/native';
+import {useRecoilValue} from 'recoil';
+import {meState} from '../atoms/index';
 
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-const NavigationIcons = ({navigation, me}) => {
+const NavigationIcons = ({navigation}) => {
+  const me = useRecoilValue(meState);
   const color = '#b5b5b5';
   const activeColor = '#f76c6b';
   const route = useRoute();

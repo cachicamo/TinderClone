@@ -1,9 +1,13 @@
 import React, {useState, useEffect} from 'react'
 import { View, Image, Text, StyleSheet, SafeAreaView, FlatList } from 'react-native'
-import {Auth, DataStore} from 'aws-amplify';
+import {DataStore} from 'aws-amplify';
+import {useRecoilValue} from 'recoil';
 
-import {User, Match} from '../models';
+import {meState, allMatchesState} from '../atoms/index';
 
+import {Match} from '../models';
+
+// mock data
 import users from '../../assets/data/users';
 import messages from '../../assets/data/messages';
 
@@ -11,53 +15,39 @@ import MessageListItem from '../components/MessageListItem';
 import NavigationIcons from '../components/NavigationIcons';
 
 const MatchesScreen = ({navigation}) => {
-  const [me, setMe] = useState(null);
+  const me = useRecoilValue(meState);
   const [matches, setMatches] = useState([]);
 
   const renderItem = ({item}) => <MessageListItem message={item} />;
 
-  const getCurrentUser = async () => {
-    try {
-      const user = await Auth.currentAuthenticatedUser();
-      const dbUsers = await DataStore.query(User, u =>
-        u.sub('eq', user.attributes.sub),
-      );
-      if (dbUsers.length < 1) {
-        return;
-      }
-
-      setMe(dbUsers[0]);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   useEffect(() => {
     const fetchMatches = async () => {
-      const result = await DataStore.query(Match);
+      const result = await DataStore.query(Match, match =>
+        match.User2ID('eq', me.id).isMatch('eq', true),
+      );
 
       setMatches(result);
     };
 
     fetchMatches();
-    getCurrentUser();
-  }, []);
+  }, [me]);
 
- 
-  if(!me) {
-    // getCurrentUser();
+
+
+  if (!me) {
     return null;
   }
+  console.log("Match ",matches)
 
   return (
     <SafeAreaView style={styles.root}>
-      <NavigationIcons navigation={navigation} me={me}/>
+      <NavigationIcons navigation={navigation} />
       <View style={styles.container}>
         <Text style={styles.title}>New Matches</Text>
         <View style={styles.users}>
           <View style={styles.user}>
-            <Image source={{uri: users[0].image}} style={styles.image} />
-            <Text style={styles.userText}>{'54 '}Likes</Text>
+            <Image source={{uri: me.image}} style={styles.image} />
+            <Text style={styles.userText}>{me.likes}{' '}Likes</Text>
           </View>
           {users.map((user, i) => (
             <View key={i} style={styles.userOthers}>

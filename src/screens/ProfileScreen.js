@@ -9,6 +9,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+
 import {CommonActions} from '@react-navigation/native';
 import {Picker} from '@react-native-community/picker';
 
@@ -123,7 +124,7 @@ const ProfileScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.pageContainer}>
-        <NavigationIcons navigation={navigation} activeScreen={'PROFILE'} me={user}/>
+        <NavigationIcons navigation={navigation} activeScreen={'PROFILE'} />
         <View style={styles.container}>
           <TextInput
             style={styles.input}

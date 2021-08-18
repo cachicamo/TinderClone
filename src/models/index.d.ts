@@ -18,10 +18,10 @@ type UserMetaData = {
 
 export declare class Match {
   readonly id: string;
-  readonly User1?: User;
-  readonly User2?: User;
   readonly User1ID: string;
-  readonly User2ID?: string;
+  readonly User1?: User;
+  readonly User2ID: string;
+  readonly User2?: User;
   readonly isMatch: boolean;
   readonly createdAt?: string;
   readonly updatedAt?: string;

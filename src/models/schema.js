@@ -10,6 +10,13 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
+                "User1ID": {
+                    "name": "User1ID",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
+                },
                 "User1": {
                     "name": "User1",
                     "isArray": false,
@@ -19,9 +26,17 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "association": {
-                        "connectionType": "BELONGS_TO",
-                        "targetName": "matchUser1Id"
+                        "connectionType": "HAS_ONE",
+                        "associatedWith": "id",
+                        "targetName": "User1ID"
                     }
+                },
+                "User2ID": {
+                    "name": "User2ID",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": true,
+                    "attributes": []
                 },
                 "User2": {
                     "name": "User2",
@@ -32,23 +47,10 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "association": {
-                        "connectionType": "BELONGS_TO",
-                        "targetName": "matchUser2Id"
+                        "connectionType": "HAS_ONE",
+                        "associatedWith": "id",
+                        "targetName": "User2ID"
                     }
-                },
-                "User1ID": {
-                    "name": "User1ID",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": true,
-                    "attributes": []
-                },
-                "User2ID": {
-                    "name": "User2ID",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": false,
-                    "attributes": []
                 },
                 "isMatch": {
                     "name": "isMatch",
@@ -216,5 +218,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "4be468f34ee2b1226b20c3be0afa096f"
+    "version": "84cfd8c15b622075fdf6adb77466bc9d"
 };
