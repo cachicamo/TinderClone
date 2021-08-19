@@ -22,20 +22,9 @@ const MatchesScreen = ({navigation}) => {
 
   const renderItem = ({item}) => <MessageListItem message={item} />;
   
-  const onMatchPressed = (item) => {
-    console.log('image pressed', item);
+  const onMatchPressed = item => {
     navigation.navigate('UserDetails', {user: item});
   };
-
-  // const renderMatch = ({item}) => (
-  //   <Pressable onPress={(item) => onMatchPressed(item)} key={item.id} style={styles.userOthers}>
-  //     {item.user1.id !== me.id && <Image source={{uri: item.user1.image}} style={styles.image} /> }
-  //     {item.user1.id !== me.id && <Text style={styles.userOthersText}>{item.user1.name}</Text> }
-  //     {item.user2.id !== me.id && <Image source={{uri: item.user2.image}} style={styles.image} /> }
-  //     {item.user2.id !== me.id && <Text style={styles.userOthersText}>{item.user2.name}</Text> }
-  //   </Pressable>
-  // );
-
 
   useEffect(() => {
     if (!me) {
