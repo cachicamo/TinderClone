@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Auth, DataStore, Hub} from 'aws-amplify';
 import {View, StyleSheet, SafeAreaView, Pressable, ActivityIndicator} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -62,7 +62,7 @@ const HomeScreen = ({navigation}) => {
 
   useEffect(() => {
     getCurrentUser();
-  }, []);
+  }, [isUserLoading]);
 
   useEffect(() => {
     getUsers();
@@ -80,8 +80,6 @@ const HomeScreen = ({navigation}) => {
 
     return () => listener();
   }, []);
-
-  console.log('Home', me, usersDB[0]);
 
   const onSwipeLeft = () => {
     if (!currentCard || !me) {
@@ -143,12 +141,14 @@ const HomeScreen = ({navigation}) => {
     return null;
   }
 
+  const users = usersDB.filter(db => db.id !== me.id);
+
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.pageContainer}>
         <NavigationIcons navigation={navigation} />
         <AnimatedStack
-          data={usersDB}
+          data={users}
           renderItem={({item}) => <Card user={item} />}
           onSwipeLeft={onSwipeLeft}
           onSwipeRight={onSwipeRight}
