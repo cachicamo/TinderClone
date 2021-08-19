@@ -63,7 +63,7 @@ const MatchesScreen = ({navigation}) => {
             renderItem={({item}) => (
               <Pressable
                 // onPress={() => console.log(item.user2)}
-                onPress={() => onMatchPressed(item.user2)}
+                onPress={() => onMatchPressed(me.id === item.user1.id ? item.user2 : item.user1)}
                 key={item.id}
                 style={styles.userOthers}>
                 {item.user1.id !== me.id && (
