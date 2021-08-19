@@ -17,8 +17,8 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
-                "User1": {
-                    "name": "User1",
+                "user1": {
+                    "name": "user1",
                     "isArray": false,
                     "type": {
                         "model": "User"
@@ -26,9 +26,8 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": "id",
-                        "targetName": "User1ID"
+                        "connectionType": "BELONGS_TO",
+                        "targetName": "matchUser1Id"
                     }
                 },
                 "User2ID": {
@@ -38,8 +37,8 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
-                "User2": {
-                    "name": "User2",
+                "user2": {
+                    "name": "user2",
                     "isArray": false,
                     "type": {
                         "model": "User"
@@ -47,9 +46,8 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": "id",
-                        "targetName": "User2ID"
+                        "connectionType": "BELONGS_TO",
+                        "targetName": "matchUser2Id"
                     }
                 },
                 "isMatch": {
@@ -218,5 +216,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "84cfd8c15b622075fdf6adb77466bc9d"
+    "version": "1c4855f5c074766c62229484fd5c25ff"
 };

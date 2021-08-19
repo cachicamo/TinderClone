@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import { View, Image, Text, StyleSheet, SafeAreaView, FlatList } from 'react-native'
+import { View, Image, Text, StyleSheet, SafeAreaView, FlatList, Pressable } from 'react-native'
 import {DataStore} from 'aws-amplify';
 import {useRecoilValue} from 'recoil';
 
@@ -8,36 +8,55 @@ import {meState, allMatchesState} from '../atoms/index';
 import {Match} from '../models';
 
 // mock data
-import users from '../../assets/data/users';
+// import users from '../../assets/data/users';
 import messages from '../../assets/data/messages';
 
 import MessageListItem from '../components/MessageListItem';
 import NavigationIcons from '../components/NavigationIcons';
+
+
 
 const MatchesScreen = ({navigation}) => {
   const me = useRecoilValue(meState);
   const [matches, setMatches] = useState([]);
 
   const renderItem = ({item}) => <MessageListItem message={item} />;
+  
+  const onMatchPressed = (item) => {
+    console.log('image pressed', item);
+    navigation.navigate('UserDetails', {user: item});
+  };
+
+  // const renderMatch = ({item}) => (
+  //   <Pressable onPress={(item) => onMatchPressed(item)} key={item.id} style={styles.userOthers}>
+  //     {item.user1.id !== me.id && <Image source={{uri: item.user1.image}} style={styles.image} /> }
+  //     {item.user1.id !== me.id && <Text style={styles.userOthersText}>{item.user1.name}</Text> }
+  //     {item.user2.id !== me.id && <Image source={{uri: item.user2.image}} style={styles.image} /> }
+  //     {item.user2.id !== me.id && <Text style={styles.userOthersText}>{item.user2.name}</Text> }
+  //   </Pressable>
+  // );
+
 
   useEffect(() => {
+    if (!me) {
+      return;
+    }
     const fetchMatches = async () => {
-      const result = await DataStore.query(Match, match =>
-        match.User2ID('eq', me.id).isMatch('eq', true),
-      );
+      try {
+        const result = await DataStore.query(Match, m =>
+          m
+            .isMatch('eq', true)
+            .or(n => n.User2ID('eq', me.id).User1ID('eq', me.id)),
+        );
 
-      setMatches(result);
+        setMatches(result);
+      } catch (e) {
+        console.error(e);
+      }
     };
 
     fetchMatches();
-  }, [me]);
-
-
-
-  if (!me) {
-    return null;
-  }
-  console.log("Match ",matches)
+  }, []);
 
   return (
     <SafeAreaView style={styles.root}>
@@ -47,14 +66,42 @@ const MatchesScreen = ({navigation}) => {
         <View style={styles.users}>
           <View style={styles.user}>
             <Image source={{uri: me.image}} style={styles.image} />
-            <Text style={styles.userText}>{me.likes}{' '}Likes</Text>
+            <Text style={styles.userText}>{matches.length} Likes</Text>
           </View>
-          {users.map((user, i) => (
-            <View key={i} style={styles.userOthers}>
-              <Image source={{uri: user.image}} style={styles.image} />
-              <Text style={styles.userOthersText}>{user.name.split(' ')[0]}</Text>
-            </View> 
-          ))}
+          <FlatList
+            style={styles.matchesFlatList}
+            data={matches}
+            renderItem={({item}) => (
+              <Pressable
+                // onPress={() => console.log(item.user2)}
+                onPress={() => onMatchPressed(item.user2)}
+                key={item.id}
+                style={styles.userOthers}>
+                {item.user1.id !== me.id && (
+                  <Image
+                    source={{uri: item.user1.image}}
+                    style={styles.image}
+                  />
+                )}
+                {item.user1.id !== me.id && (
+                  <Text style={styles.userOthersText}>{item.user1.name}</Text>
+                )}
+                {item.user2.id !== me.id && (
+                  <Image
+                    source={{uri: item.user2.image}}
+                    style={styles.image}
+                  />
+                )}
+                {item.user2.id !== me.id && (
+                  <Text style={styles.userOthersText}>{item.user2.name}</Text>
+                )}
+              </Pressable>
+            )}
+            // {renderMatch}
+            keyExtractor={(item, index) => index}
+            showsHorizontalScrollIndicator={false}
+            horizontal={true}
+          />
         </View>
       </View>
       <View style={styles.messageContainer}>
@@ -100,12 +147,15 @@ const styles = StyleSheet.create({
   userOthers: {
     width: 65,
     height: 65,
-    margin: 5,
+    margin: 3,
     borderRadius: 50,
     alignItems: 'center',
+
   },
   users: {
     flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderColor: '#c1c1c1'
     // flexWrap: 'wrap',
   },
   image: {
@@ -120,10 +170,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   messageContainer: {
-    paddingTop: 15,
+    paddingTop: 5,
     paddingLeft: 15,
-    marginVertical: 15,
-    height: '70%',
+    height: '64%',
   },
   titleMessage: {
     fontSize: 20,
@@ -132,6 +181,10 @@ const styles = StyleSheet.create({
   },
   flatList: {
     padding: 5,
+  },
+  matchesFlatList: {
+    flexDirection: 'row',
+    height: 100,
   },
   bottomContainer: {
     flexDirection: 'row',

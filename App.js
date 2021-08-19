@@ -9,12 +9,15 @@ import {
   useRecoilValue,
 } from 'recoil';
 
-import HomeScreen from './src/screens/HomeScreen';
-import MatchesScreen from './src/screens/MatchesScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
 import Amplify, {DataStore, Hub} from 'aws-amplify';
 import {withAuthenticator} from 'aws-amplify-react-native';
 import config from './src/aws-exports';
+
+import HomeScreen from './src/screens/HomeScreen';
+import MatchesScreen from './src/screens/MatchesScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import UserDetailsScreen from './src/screens/UserDetailsScreen';
+
 
 Amplify.configure({
   ...config,
@@ -36,6 +39,7 @@ const App = () => {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Matches" component={MatchesScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="UserDetails" component={UserDetailsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </RecoilRoot>

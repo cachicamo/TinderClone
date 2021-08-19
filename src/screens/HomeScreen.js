@@ -50,10 +50,7 @@ const HomeScreen = ({navigation}) => {
       const hisMatches = await DataStore.query(Match, match =>
         match.User1ID('eq', currentCard.id).User2ID('eq', me.id),
       );
-      // const hisMatches = await DataStore.query(Match);
-      // console.log(currentCard.id, me.id);
-      // console.log(hisMatches);
-      // return;
+     
       if (hisMatches.length > 0) {
         console.warn('Yay, this is a new match');
         const hisMatch = hisMatches[0];
@@ -64,13 +61,12 @@ const HomeScreen = ({navigation}) => {
       }
 
       console.warn('Sending User a match request!');
-      DataStore.save(
-        new Match({
-          User1ID: me.id,
-          User2ID: currentCard.id,
-          isMatch: false,
-        }),
-      );
+      const newMatch = new Match({
+        User1ID: me.id,
+        User2ID: currentCard.id,
+        isMatch: false,
+      });
+      DataStore.save(newMatch);
     } catch (e) {
       console.error(e);
     }
