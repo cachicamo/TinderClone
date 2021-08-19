@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet, SafeAreaView} from 'react-native';
+import {View, Text, Image, StyleSheet, SafeAreaView, Pressable} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 
 import NavigationIcons from '../components/NavigationIcons';
@@ -8,16 +8,20 @@ const UserDetailsScreen = ({navigation}) => {
   const route = useRoute();
   const {user} = route.params;
 
+  const onMatchPressed = () => {
+    navigation.navigate('Matches');
+  };
+
   return (
     <SafeAreaView style={styles.root}>
       <NavigationIcons navigation={navigation} />
-      <View style={styles.contentContainer}>
+      <Pressable onPress={onMatchPressed} style={styles.contentContainer}>
         <Image source={{uri: user.image}} style={styles.image} />
         <View style={styles.text}>
           <Text style={styles.userName}>{user.name}</Text>
           <Text style={styles.userBio}>{user.bio}</Text>
         </View>
-      </View>
+      </Pressable>
     </SafeAreaView>
   );
 };

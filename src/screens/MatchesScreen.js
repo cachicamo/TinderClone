@@ -1,9 +1,9 @@
 import React, {useState, useEffect} from 'react'
-import { View, Image, Text, StyleSheet, SafeAreaView, FlatList, Pressable } from 'react-native'
-import {DataStore} from 'aws-amplify';
-import {useRecoilValue} from 'recoil';
+import { View, Image, Text, StyleSheet, SafeAreaView, FlatList, Pressable, ActivityIndicator } from 'react-native'
+import {DataStore, Hub} from 'aws-amplify';
+import {useRecoilValue, useRecoilState} from 'recoil';
 
-import {meState, allMatchesState} from '../atoms/index';
+import {meState, isUsersLoadingState} from '../atoms/index';
 
 import {Match} from '../models';
 
@@ -15,13 +15,13 @@ import MessageListItem from '../components/MessageListItem';
 import NavigationIcons from '../components/NavigationIcons';
 
 
-
 const MatchesScreen = ({navigation}) => {
   const me = useRecoilValue(meState);
+  const [isUserLoading, setIsUserLoading] = useRecoilState(isUsersLoadingState);
+
   const [matches, setMatches] = useState([]);
 
   const renderItem = ({item}) => <MessageListItem message={item} />;
-  
   const onMatchPressed = item => {
     navigation.navigate('UserDetails', {user: item});
   };
@@ -62,8 +62,11 @@ const MatchesScreen = ({navigation}) => {
             data={matches}
             renderItem={({item}) => (
               <Pressable
-                // onPress={() => console.log(item.user2)}
-                onPress={() => onMatchPressed(me.id === item.user1.id ? item.user2 : item.user1)}
+                onPress={() =>
+                  onMatchPressed(
+                    me.id === item.user1.id ? item.user2 : item.user1,
+                  )
+                }
                 key={item.id}
                 style={styles.userOthers}>
                 {item.user1.id !== me.id && (

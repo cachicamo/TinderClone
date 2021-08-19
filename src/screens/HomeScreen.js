@@ -1,7 +1,7 @@
 import 'react-native-gesture-handler';
-import React, {useState, useEffect} from 'react';
-import {Auth, DataStore} from 'aws-amplify';
-import {View, Text, StyleSheet, SafeAreaView, Pressable} from 'react-native';
+import React, {useEffect} from 'react';
+import {Auth, DataStore, Hub} from 'aws-amplify';
+import {View, StyleSheet, SafeAreaView, Pressable, ActivityIndicator} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -19,11 +19,69 @@ import {User, Match} from '../models/';
 import Card from '../components/TinderCard';
 import AnimatedStack from '../components/AnimatedStack';
 import NavigationIcons from '../components/NavigationIcons';
+import {isUsersLoadingState} from '../atoms/index';
+
 
 const HomeScreen = ({navigation}) => {
   const [me, setMe] = useRecoilState(meState);
   const [usersDB, setUsersDB] = useRecoilState(userDBState);
   const currentCard = useRecoilValue(currentCardState);
+  const [isUserLoading, setIsUserLoading] = useRecoilState(isUsersLoadingState);
+
+  const getCurrentUser = async () => {
+    try {
+      const user = await Auth.currentAuthenticatedUser();
+      const dbUsers = await DataStore.query(User, u =>
+        u.sub('eq', user.attributes.sub),
+      );
+      if (!dbUsers || dbUsers.length === 0) {
+        return;
+      }
+
+      setMe(dbUsers[0]);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const getUsers = async () => {
+    if (!me) {
+      return;
+    }
+    try {
+      const dbUsers = await DataStore.query(User);
+      if (!dbUsers || dbUsers.length === 0) {
+        return;
+      }
+
+      setUsersDB(dbUsers);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    getCurrentUser();
+  }, []);
+
+  useEffect(() => {
+    getUsers();
+  }, [me]);
+
+  useEffect(() => {
+    // Create listener
+    const listener = Hub.listen('datastore', async hubData => {
+      const {event, data} = hubData.payload;
+      if (event === 'modelSynced' && data?.model?.name === 'User') {
+        console.log('User Model has finished syncing');
+        setIsUserLoading(false);
+      }
+    });
+
+    return () => listener();
+  }, []);
+
+  console.log('Home', me, usersDB[0]);
 
   const onSwipeLeft = () => {
     if (!currentCard || !me) {
@@ -50,7 +108,7 @@ const HomeScreen = ({navigation}) => {
       const hisMatches = await DataStore.query(Match, match =>
         match.User1ID('eq', currentCard.id).User2ID('eq', me.id),
       );
-     
+
       if (hisMatches.length > 0) {
         console.warn('Yay, this is a new match');
         const hisMatch = hisMatches[0];
@@ -77,43 +135,11 @@ const HomeScreen = ({navigation}) => {
     getUsers();
   };
 
-  const getUsers = async () => {
-    if (!me) {
-      return;
-    }
-    try {
-      const dbUsers = await DataStore.query(User, u => u.id('ne', me.id));
-      setUsersDB(dbUsers);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  if (isUserLoading && !usersDB) {
+    return <ActivityIndicator style={{flex: 1}} />;
+  }
 
-  useEffect(() => {
-    const getCurrentUser = async () => {
-      try {
-        const user = await Auth.currentAuthenticatedUser();
-        const dbUsers = await DataStore.query(User, u =>
-          u.sub('eq', user.attributes.sub),
-        );
-        if (dbUsers.length < 1) {
-          return;
-        }
-
-        setMe(dbUsers[0]);
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
-    getCurrentUser();
-  }, []);
-
-  useEffect(() => {
-    getUsers();
-  }, [me]);
-
-  if (!me) {
+  if (!me || !usersDB) {
     return null;
   }
 

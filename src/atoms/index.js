@@ -3,6 +3,11 @@ import {DataStore} from 'aws-amplify';
 
 import {Match} from '../models/index';
 
+export const isUsersLoadingState = atom({
+  key: 'isUsersLoadingState',
+  default: true,
+});
+
 export const meState = atom({
   key: 'meState', // unique ID (with respect to other atoms/selectors)
   default: null, // default value (aka initial value)

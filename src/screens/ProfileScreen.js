@@ -9,12 +9,14 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+import {useRecoilState} from 'recoil';
 
 import {CommonActions} from '@react-navigation/native';
 import {Picker} from '@react-native-community/picker';
 
 import NavigationIcons from '../components/NavigationIcons';
 import {User} from '../models/';
+import {isUsersLoadingState} from '../atoms/index';
 
 const ProfileScreen = ({navigation}) => {
   const [user, setUser] = useState(null);
@@ -22,9 +24,13 @@ const ProfileScreen = ({navigation}) => {
   const [bio, setBio] = useState(null);
   const [gender, setGender] = useState('MALE');
   const [lookingFor, setLookingFor] = useState('FEMALE');
+  const [isUserLoading, setIsUserLoading] = useRecoilState(isUsersLoadingState);
+
 
   const signOut = async () => {
-    await Auth.signOut();
+    await DataStore.clear();
+    setIsUserLoading(false);
+    Auth.signOut();
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
@@ -100,7 +106,7 @@ const ProfileScreen = ({navigation}) => {
         const dbUsers = await DataStore.query(User, u =>
           u.sub('eq', authUser.attributes.sub),
         );
-        if (dbUsers.length < 1) {
+        if (!dbUsers || dbUsers.length === 0) {
           return;
         }
         const dbUser = dbUsers[0];

@@ -1,23 +1,15 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {
-  RecoilRoot,
-  atom,
-  selector,
-  useRecoilState,
-  useRecoilValue,
-} from 'recoil';
-
 import Amplify, {DataStore, Hub} from 'aws-amplify';
 import {withAuthenticator} from 'aws-amplify-react-native';
-import config from './src/aws-exports';
+import {RecoilRoot, useRecoilState} from 'recoil';
 
+import config from './src/aws-exports';
 import HomeScreen from './src/screens/HomeScreen';
 import MatchesScreen from './src/screens/MatchesScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import UserDetailsScreen from './src/screens/UserDetailsScreen';
-
 
 Amplify.configure({
   ...config,
@@ -30,8 +22,8 @@ const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
+    <NavigationContainer>
     <RecoilRoot>
-      <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -41,8 +33,8 @@ const App = () => {
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="UserDetails" component={UserDetailsScreen} />
         </Stack.Navigator>
-      </NavigationContainer>
     </RecoilRoot>
+      </NavigationContainer>
   );
 };
 
