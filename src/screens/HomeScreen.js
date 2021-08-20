@@ -6,6 +6,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Entypo from 'react-native-vector-icons/Entypo';
 import {useRecoilState, useRecoilValue} from 'recoil';
+import {CommonActions} from '@react-navigation/native';
 
 //Recoil
 import {meState, userDBState, currentCardState} from '../atoms/index';
@@ -85,7 +86,7 @@ const HomeScreen = ({navigation}) => {
     if (!currentCard || !me) {
       return;
     }
-    console.log('swipe Left: ', currentCard.name);
+    // console.log('swipe Left: ', currentCard.name);
   };
 
   const onSwipeRight = async () => {
@@ -99,7 +100,7 @@ const HomeScreen = ({navigation}) => {
       );
 
       if (myMatches.length > 0) {
-        console.warn('You already swipped right to this user');
+        // console.warn('You already swipped right to this user');
         return;
       }
 
@@ -108,7 +109,7 @@ const HomeScreen = ({navigation}) => {
       );
 
       if (hisMatches.length > 0) {
-        console.warn('Yay, this is a new match');
+        // console.warn('Yay, this is a new match');
         const hisMatch = hisMatches[0];
         DataStore.save(
           Match.copyOf(hisMatch, updated => (updated.isMatch = true)),
@@ -116,7 +117,7 @@ const HomeScreen = ({navigation}) => {
         return;
       }
 
-      console.warn('Sending User a match request!');
+      // console.warn('Sending User a match request!');
       const newMatch = new Match({
         User1ID: me.id,
         User2ID: currentCard.id,
@@ -130,7 +131,12 @@ const HomeScreen = ({navigation}) => {
 
   // Reload UsersDB
   const onRefresh = () => {
-    getUsers();
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{name: 'Home'}],
+      }),
+    );
   };
 
   if (isUserLoading && !usersDB) {

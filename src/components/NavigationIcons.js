@@ -39,7 +39,9 @@ const NavigationIcons = ({navigation}) => {
           color={route.name === 'Matches' ? activeColor : color}
         />
       </Pressable>
-      <Pressable onPress={() => navigation.navigate('Profile')} style={styles.user}>
+      <Pressable
+        onPress={() => navigation.navigate('Profile')}
+        style={styles.user}>
         <FontAwesome
           name="user"
           size={30}
