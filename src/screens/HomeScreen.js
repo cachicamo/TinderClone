@@ -9,7 +9,14 @@ import {useRecoilState, useRecoilValue} from 'recoil';
 import {CommonActions} from '@react-navigation/native';
 
 //Recoil
-import {meState, userDBState, currentCardState} from '../atoms/index';
+import {
+  meState,
+  userDBState,
+  currentCardState,
+  isUsersLoadingState,
+  matchesState,
+  usersToView,
+} from '../atoms/index';
 
 // User DataStore Definition
 import {User, Match} from '../models/';
@@ -20,7 +27,6 @@ import {User, Match} from '../models/';
 import Card from '../components/TinderCard';
 import AnimatedStack from '../components/AnimatedStack';
 import NavigationIcons from '../components/NavigationIcons';
-import {isUsersLoadingState} from '../atoms/index';
 
 
 const HomeScreen = ({navigation}) => {
@@ -28,29 +34,47 @@ const HomeScreen = ({navigation}) => {
   const [usersDB, setUsersDB] = useRecoilState(userDBState);
   const currentCard = useRecoilValue(currentCardState);
   const [isUserLoading, setIsUserLoading] = useRecoilState(isUsersLoadingState);
+  const [matches, setMatches] = useRecoilState(matchesState);
+  const myViewUsers = useRecoilValue(usersToView)
 
-  const getCurrentUser = async () => {
-    try {
-      const user = await Auth.currentAuthenticatedUser();
-      const dbUsers = await DataStore.query(User, u =>
-        u.sub('eq', user.attributes.sub),
-      );
-      if (!dbUsers || dbUsers.length === 0) {
-        return;
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      try {
+        const user = await Auth.currentAuthenticatedUser();
+        const dbUsers = await DataStore.query(User, u =>
+          u.sub('eq', user.attributes.sub),
+        );
+        if (!dbUsers || dbUsers.length === 0) {
+          return;
+        }
+  
+        setMe(dbUsers[0]);
+      } catch (e) {
+        console.error(e);
       }
+    };
+    console.log('get users');
 
-      setMe(dbUsers[0]);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+    getCurrentUser();
+  }, []);
 
-  const getUsers = async () => {
+ 
+  useEffect(() => {
+    console.log('get users and Matches')
     if (!me) {
       return;
     }
+    console.log('me found')
+    getUsers();
+    fetchMatches();
+  }, [me]);
+
+  const getUsers = async () => {
     try {
-      const dbUsers = await DataStore.query(User);
+      console.log('get users')
+      const dbUsers = await DataStore.query(User, user =>
+        user.gender('eq', me.lookingFor),
+      );
       if (!dbUsers || dbUsers.length === 0) {
         return;
       }
@@ -61,13 +85,26 @@ const HomeScreen = ({navigation}) => {
     }
   };
 
-  useEffect(() => {
-    getCurrentUser();
-  }, [isUserLoading]);
+  // sortBy: [Match.updatedAT.descending()]
 
-  useEffect(() => {
-    getUsers();
-  }, [me]);
+
+  const fetchMatches = async () => {
+    try {
+      console.log('get match')
+
+      const result = await DataStore.query(Match, m =>
+        m
+          .isMatch('eq', true)
+          .or(n => n.User2ID('eq', me.id).User1ID('eq', me.id)),
+      );
+      result.sort((a, b) => {
+        return a._lastChangedAt + b._lastChangedAt;
+      });
+      setMatches(result);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     // Create listener
@@ -139,15 +176,16 @@ const HomeScreen = ({navigation}) => {
     );
   };
 
-  if (isUserLoading && !usersDB) {
+  if (isUserLoading && !me || !usersDB) {
     return <ActivityIndicator style={{flex: 1}} />;
   }
 
-  if (!me || !usersDB) {
-    return null;
+  if (!me) {
+    return;
   }
 
-  const users = usersDB.filter(db => db.id !== me.id);
+  // const users = usersDB.filter(db => db.id !== me.id);
+  const users = myViewUsers;
 
   return (
     <SafeAreaView style={styles.root}>

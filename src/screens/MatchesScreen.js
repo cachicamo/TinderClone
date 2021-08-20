@@ -1,9 +1,9 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useEffect, useRef} from 'react'
 import { View, Image, Text, StyleSheet, SafeAreaView, FlatList, Pressable, ActivityIndicator } from 'react-native'
-import {DataStore, Hub} from 'aws-amplify';
-import {useRecoilValue, useRecoilState} from 'recoil';
+import {DataStore} from 'aws-amplify';
+import {useRecoilState, useRecoilValue} from 'recoil';
 
-import {meState, isUsersLoadingState} from '../atoms/index';
+import {meState, matchesState} from '../atoms/index';
 
 import {Match} from '../models';
 
@@ -15,20 +15,19 @@ import MessageListItem from '../components/MessageListItem';
 import NavigationIcons from '../components/NavigationIcons';
 
 const MatchesScreen = ({navigation}) => {
-  const [matches, setMatches] = useState([]);
   const me = useRecoilValue(meState);
-  const [rerender, setRerender] = useState(0);
+  const [matches, setMatches] = useRecoilState(matchesState);
   const flatListRef = useRef();
 
   const clearFlatList = () => {
-      // use current
+    console.warn('blank image')
       // console.log(flatListRef.current);
       // .current.scrollToOffset({ animated: true, offset: 0 })
   }
 
   const renderItem = ({item}) => <MessageListItem message={item} />;
 
-  const renderMatches = ({item}) => {
+  const renderMatches = ({item, index}) => {
     let renderThis = null;
     if (item.user1 ) {
       renderThis = (
@@ -38,17 +37,25 @@ const MatchesScreen = ({navigation}) => {
               onMatchPressed(me.id === item.user1.id ? item.user2 : item.user1)
             }
             key={item.id}
-            style={styles.matchUserContainer}>
+            style={
+              index === 0 ? styles.newMatchContainer : styles.matchUserContainer
+            }>
             {item.user1.id !== me.id && (
               <Image source={{uri: item.user1.image}} style={styles.image} />
             )}
-            {item.user1.id !== me.id && (
+            {item.user1.id !== me.id && index === 0 && (
+              <Text style={styles.userText}>{item.user1.likes} Likes</Text>
+            )}
+            {item.user1.id !== me.id && index > 0 && (
               <Text style={styles.userOthersText}>{item.user1.name}</Text>
             )}
             {item.user2.id !== me.id && (
               <Image source={{uri: item.user2.image}} style={styles.image} />
             )}
-            {item.user2.id !== me.id && (
+            {item.user2.id !== me.id && index === 0 && (
+              <Text style={styles.userText}>{item.user2.likes} Likes</Text>
+            )}
+            {item.user2.id !== me.id && index > 0 && (
               <Text style={styles.userOthersText}>{item.user2.name}</Text>
             )}
           </Pressable>
@@ -67,71 +74,48 @@ const MatchesScreen = ({navigation}) => {
     return renderThis;
   };
 
-  // <Text>YES</Text>;
-
   const onMatchPressed = item => {
     navigation.navigate('UserDetails', {user: item});
   };
 
-  const goFetch = () => {
-    console.log.apply('go fetch')
-  };
-
   const fetchMatches = async () => {
-    // console.log('fetching Matches')
     try {
+      console.log('Fetch Matches again')
       const result = await DataStore.query(Match, m =>
         m
           .isMatch('eq', true)
           .or(n => n.User2ID('eq', me.id).User1ID('eq', me.id)),
       );
-      setMatches(result);
+
+      const result2 = result.sort((a, b) => {
+        return a._lastChangedAt + b._lastChangedAt;
+      });
+
+      setMatches(result2);
     } catch (e) {
       console.error(e);
     }
   };
 
+  // subscribe to Match events
   useEffect(() => {
-    // console.log('useEffect 1')
-    if (!me) {
-      return;
-    }
-
-    fetchMatches();
-  }, []);
-
-  useEffect(() => {
-    // console.log('useEffect 2')
-    try {
-      const subscription = DataStore.observe(Match).subscribe(msg => {
-        // console.log(msg.model, msg.opType);
-        // console.warn(msg.model, msg.opType, msg.element);
-        if (msg.opType === 'UPDATE' ) {
-          const newMatch = msg.element;
-          // console.log('new Match update operation');
-          if (
-            newMatch.isMatch &&
-            (msg.element.User1ID === me.id || msg.element.User2ID === me.id)
-          ) {
-            // console.log('**************** There is a new match waiting for you!');
-            setRerender(rerender+1);
-          }
+    console.log('Subscribed to Matches Events');
+    const subscription = DataStore.observe(Match).subscribe(msg => {
+      // console.warn(msg.model, msg.opType, msg.element);
+      console.log(msg.opType);
+      if (msg.opType === 'UPDATE') {
+        const newMatch = msg.element;
+        if (
+          newMatch.isMatch &&
+          (msg.element.User1ID === me.id || msg.element.User2ID === me.id)
+        ) {
+          fetchMatches();
         }
-      });
-    } catch (e) {
-      console.error(e);
-    }
+      }
+    });
 
     return () => subscription.unsubscribe();
   }, []);
-
-  useEffect(() => {
-    // console.log('useEffect 3')
-    if (!me) {
-      return;
-    }
-    fetchMatches();
-  }, [rerender, fetchMatches]);
 
   return (
     <SafeAreaView style={styles.root}>
@@ -139,10 +123,7 @@ const MatchesScreen = ({navigation}) => {
       <View style={styles.container}>
         <Text style={styles.title}>New Matches</Text>
         <View style={styles.matchedUsers}>
-          <View style={styles.userContainer}>
-            <Image source={{uri: me.image}} style={styles.image} />
-            <Text style={styles.userText}>{matches.length} Likes</Text>
-          </View>
+         
           <FlatList
             style={styles.matchesFlatList}
             data={matches}
@@ -182,9 +163,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#f63a6b',
   },
-  userContainer: {
-    width: 65,
-    height: 65,
+  newMatchContainer: {
+    width: 75,
+    height: 75,
     margin: 5,
     borderRadius: 50,
     alignItems: 'center',
@@ -194,8 +175,8 @@ const styles = StyleSheet.create({
     borderColor: '#f63a6b',
   },
   matchUserContainer: {
-    width: 65,
-    height: 65,
+    width: 75,
+    height: 75,
     margin: 3,
     borderRadius: 50,
     alignItems: 'center',

@@ -1,7 +1,4 @@
 import {atom, selector} from 'recoil';
-import {DataStore} from 'aws-amplify';
-
-import {Match} from '../models/index';
 
 export const isUsersLoadingState = atom({
   key: 'isUsersLoadingState',
@@ -18,6 +15,11 @@ export const userDBState = atom({
   default: [], // default value (aka initial value)
 });
 
+export const matchesState = atom({
+  key: 'matchesState', // unique ID (with respect to other atoms/selectors)
+  default: [], // default value (aka initial value)
+});
+
 export const currentCardState = atom({
   key: 'currentCardState', // unique ID (with respect to other atoms/selectors)
   default: null, // default value (aka initial value)
@@ -28,27 +30,21 @@ export const allMatchesState = atom({
   default: [], // default value (aka initial value)
 });
 
-export const matchCountState = selector({
-  key: 'matchCountState', // unique ID (with respect to other atoms/selectors)
+export const usersToView = selector({
+  key: 'usersToView',
   get: ({get}) => {
-    const cnt = get(allMatchesState); //gets the atom defined above
+    const me = get(meState);
+    const matches = get(matchesState);
+    const users = get(userDBState);
 
-    return cnt.length;
+    const matchesIDs = matches.map(match =>
+      me.id !== match.User1ID ? match.User1ID : match.User2ID,
+    );
+
+    const result = users.filter(db =>
+      !matchesIDs.includes(db.id) && db.id !== me.id
+    );
+
+    return result;
   },
 });
-
-// export const allMatchesState = selector({
-//   key: 'allMatchesState',
-//   get: async () => {
-//     try {
-//       const myMatches = await DataStore.query(Match, match =>
-//         match.User1ID('eq', me.id).isMatch('eq', true),
-//       );
-
-//       return myMatches;
-//     } catch (e) {
-//       console.log('Error: ', e);
-//       return [];
-//     }
-//   },
-// });

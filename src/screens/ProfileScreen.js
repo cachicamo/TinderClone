@@ -16,7 +16,6 @@ import {Picker} from '@react-native-community/picker';
 
 import NavigationIcons from '../components/NavigationIcons';
 import {User} from '../models/';
-import {isUsersLoadingState} from '../atoms/index';
 
 const ProfileScreen = ({navigation}) => {
   const [user, setUser] = useState(null);
@@ -24,12 +23,9 @@ const ProfileScreen = ({navigation}) => {
   const [bio, setBio] = useState(null);
   const [gender, setGender] = useState('MALE');
   const [lookingFor, setLookingFor] = useState('FEMALE');
-  const [isUserLoading, setIsUserLoading] = useRecoilState(isUsersLoadingState);
-
 
   const signOut = async () => {
     await DataStore.clear();
-    setIsUserLoading(false);
     Auth.signOut();
     navigation.dispatch(
       CommonActions.reset({
