@@ -35,6 +35,13 @@
 			</dict>
 		</dict>
 	</dict>
+
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to photo to change Avatar</string>
+
+  <key>NSPhotoLibraryAddUsageDescription</key>
+  <string>We need access to Add photo</string>
+	
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>UILaunchStoryboardName</key>
@@ -71,6 +78,5 @@
 		<string>Zocial.ttf</string>
 		<string>Fontisto.ttf</string>
 	</array>
-
 </dict>
 </plist>

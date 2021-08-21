@@ -12,6 +12,15 @@ target 'TinderClone' do
     :hermes_enabled => false
   )
 
+  pod 'RNPermissions', :path => '../node_modules/react-native-permissions'
+  
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
+  pod 'Permission-MediaLibrary', :path => "#{permissions_path}/MediaLibrary"
+  pod 'Permission-PhotoLibrary', :path => "#{permissions_path}/PhotoLibrary"
+
+  # pod 'react-native-image-crop-picker', :path => '../node_modules/react-native-image-crop-picker/ios'
+
   target 'TinderCloneTests' do
     inherit! :complete
     # Pods for testing
