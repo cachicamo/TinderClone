@@ -1,7 +1,17 @@
-import React, {useEffect, useRef} from 'react'
-import { View, Image, Text, StyleSheet, SafeAreaView, FlatList, Pressable, ActivityIndicator } from 'react-native'
+import React, {useEffect, useRef} from 'react';
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
 import {DataStore} from 'aws-amplify';
 import {useRecoilState, useRecoilValue} from 'recoil';
+import {S3Image} from 'aws-amplify-react-native';
 
 import {meState, matchesState} from '../atoms/index';
 
@@ -27,6 +37,14 @@ const MatchesScreen = ({navigation}) => {
 
   const renderItem = ({item}) => <MessageListItem message={item} />;
 
+  const renderImage = (item) => {
+    // console.log(item)
+    if (item.image.startsWith('http')) {
+      return <Image source={{uri: item.image}} style={styles.image} />
+    }
+    return <S3Image imgKey={item.image} style={styles.image} />;
+  };
+
   const renderMatches = ({item, index}) => {
     let renderThis = null;
     if (item.user1 ) {
@@ -40,18 +58,20 @@ const MatchesScreen = ({navigation}) => {
             style={
               index === 0 ? styles.newMatchContainer : styles.matchUserContainer
             }>
-            {item.user1.id !== me.id && (
+            {item.user1.id !== me.id ? renderImage(item.user1) : null}
+            {/* (
               <Image source={{uri: item.user1.image}} style={styles.image} />
-            )}
+            )} */}
             {item.user1.id !== me.id && index === 0 && (
               <Text style={styles.userText}>{item.user1.likes} Likes</Text>
             )}
             {item.user1.id !== me.id && index > 0 && (
               <Text style={styles.userOthersText}>{item.user1.name}</Text>
             )}
-            {item.user2.id !== me.id && (
+            {item.user2.id !== me.id ? renderImage(item.user2) : null}
+            {/* {item.user2.id !== me.id && (
               <Image source={{uri: item.user2.image}} style={styles.image} />
-            )}
+            )} */}
             {item.user2.id !== me.id && index === 0 && (
               <Text style={styles.userText}>{item.user2.likes} Likes</Text>
             )}

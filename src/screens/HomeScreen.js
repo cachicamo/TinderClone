@@ -56,9 +56,17 @@ const HomeScreen = ({navigation}) => {
     console.log('get users');
 
     getCurrentUser();
-  }, []);
+  }, [isUserLoading]);
 
  
+  useEffect(() => {
+    console.log('get Matches')
+    if (isUserLoading || !me ) {
+      return;
+    }
+    fetchMatches();
+  }, [me]);
+
   useEffect(() => {
     console.log('get users and Matches')
     if (!me) {
@@ -66,8 +74,9 @@ const HomeScreen = ({navigation}) => {
     }
     console.log('me found')
     getUsers();
-    fetchMatches();
-  }, [me]);
+  }, [isUserLoading, me]);
+
+
 
   const getUsers = async () => {
     try {
@@ -181,7 +190,7 @@ const HomeScreen = ({navigation}) => {
   }
 
   if (!me) {
-    return;
+    return null;
   }
 
   // const users = usersDB.filter(db => db.id !== me.id);
